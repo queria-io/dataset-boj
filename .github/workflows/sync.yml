@@ -1,0 +1,23 @@
+name: Sync
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+  # 企業物価指数は毎月中旬、企業向けサービス価格指数は下旬、短観と貸出先別貸出金は四半期ごとに出る。
+  # 定期実行は、公開の条件を日本銀行に確認してから足す
+  workflow_dispatch:
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    uses: queria-io/dataset-shared/.github/workflows/sync.yml@main
+    with:
+      dataset_name: boj
+      # 全系列を取り直す。短観の系列が多く、間を空けて取るので時間がかかる
+      timeout_minutes: 120
+    secrets: inherit

@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: loans_by_sector_series
+    description: 日本銀行「貸出先別貸出金」の系列の一覧。1 行が 1 系列
+    access: public
+    columns:
+      - name: series_code
+        data_tests: [not_null, unique]
+      - name: frequency
+        data_tests: [not_null]
+  - name: loans_by_sector_observations
+    description: 日本銀行「貸出先別貸出金」の値。1 行が 1 系列の 1 期
+    access: public
+    columns:
+      - name: series_code
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('loans_by_sector_series')
+                field: series_code
+      - name: period
+        data_tests: [not_null]
+      - name: value
+        data_tests: [not_null]

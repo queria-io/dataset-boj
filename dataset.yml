@@ -4,7 +4,7 @@
 name: boj
 title: 日本銀行 時系列統計
 description: |-
-  日本銀行の時系列統計データ検索サイトから取得した、短観・企業物価指数・企業向けサービス価格指数・貸出先別貸出金です。統計ごとにスキーマを分け、系列の一覧（series）と値（observations）の 2 つのテーブルにしています。
+  日本銀行の時系列統計データ検索サイトの全ての統計です。金利、マーケット、決済、預金・マネー・貸出、金融機関バランスシート、資金循環、短観、物価、財政、国際収支・BIS 関連の DB を、DB の一覧（databases）・系列の一覧（series）・値（observations）の 3 つのテーブルにしています。
 
   このサービスは、日本銀行時系列統計データ検索サイトの API 機能を使用しています。サービスの内容は日本銀行によって保証されたものではありません。
 keywords:
@@ -22,6 +22,12 @@ keywords:
   - 貸出先別貸出金
   - 業種別貸出
   - 銀行貸出
+  - 金利
+  - 為替
+  - マネーストック
+  - マネタリーベース
+  - 資金循環
+  - 国際収支
 homepage: https://github.com/queria-io/dataset-boj
 language: ja
 
@@ -48,14 +54,8 @@ spatial_coverage: [JP]
 update_frequency: irregular
 
 schemas:
-  - name: tankan
-    title: 短観
-  - name: cgpi
-    title: 企業物価指数
-  - name: sppi
-    title: 企業向けサービス価格指数
-  - name: loans_by_sector
-    title: 貸出先別貸出金
+  - name: timeseries
+    title: 時系列統計
 
 annotations:
   queria:

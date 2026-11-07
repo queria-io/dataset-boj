@@ -1,0 +1,61 @@
+schema: timeseries
+name: series
+title: 系列の一覧
+description: |-
+  日本銀行 時系列統計データ検索サイトの全 DB の系列の一覧です。1 行が 1 系列です。値は observations に、db と series_code で結合して読みます。
+
+  - 系列は名称（name）や分類（category）の文字で探します。短観の系列名は「D.I./業況/全規模/全産業/実績」のように、項目・規模・業種などを「/」で区切って並べています
+  - 物価指数は基準年ごとに別の系列です。基準年は category と unit で区別します
+  - 合計と内訳の系列が並んでいます（総平均と類別、総貸出と業種別など）。足し合わせると重複します
+  - 同じ系列が検索サイトの階層の複数の場所に出てくるときは、最初の場所だけを残しています
+primary_key: [db, series_code]
+sources:
+  - path: https://www.stat-search.boj.or.jp/
+fields:
+  - name: db
+    title: DB 名
+    description: databases の db と同じ
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: series_code
+    title: 系列コード
+    description: 日本銀行の系列コード。検索サイトのデータコードから先頭の「DB 名'」を除いたもの
+  - name: name
+    title: 系列名称
+  - name: name_en
+    title: 系列名称（英語）
+  - name: unit
+    title: 単位
+  - name: unit_en
+    title: 単位（英語）
+  - name: frequency
+    title: 期種
+    description: DAILY（日次）・WEEKLY(…)（週次）・MONTHLY（月次）・QUARTERLY（四半期）・SEMIANNUAL（暦年半期）・SEMIANNUAL(SEP)（年度半期）・ANNUAL（暦年）・ANNUAL(MAR)（年度）
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: category
+    title: 分類
+    description: 検索サイトでの分類。基準年や指数の種類が入ります
+  - name: category_en
+    title: 分類（英語）
+  - name: layer1
+    title: 階層 1
+    description: 検索サイトでの並び順。layer1〜layer5 の順に並べると、検索サイトの表示順になります
+  - name: layer2
+    title: 階層 2
+  - name: layer3
+    title: 階層 3
+  - name: layer4
+    title: 階層 4
+  - name: layer5
+    title: 階層 5
+  - name: start_period
+    title: 収録開始期
+    description: 期の書き方は observations の period と同じ
+  - name: end_period
+    title: 収録終了期
+  - name: last_update
+    title: 最終更新日
+  - name: notes
+    title: 備考
+    description: 品目数やウエイトなど
+  - name: notes_en
+    title: 備考（英語）

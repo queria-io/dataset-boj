@@ -1,0 +1,32 @@
+schema: timeseries
+name: observations
+title: 値
+description: |-
+  日本銀行 時系列統計データ検索サイトの全 DB の値です。1 行が 1 系列の 1 期です。系列名称や単位は series に、db と series_code で結合して引きます。
+
+  - 期（period）の桁は期種で違います。暦年・年度は YYYY（年度は 4 月から翌年 3 月）、半期は YYYYHH（01 が上期）、四半期は YYYYQQ（01〜04）、月次は YYYYMM です
+  - 値の無い期の行はありません
+  - 値は過去に遡って訂正されることがあります
+primary_key: [db, series_code, period]
+sources:
+  - path: https://www.stat-search.boj.or.jp/
+fields:
+  - name: db
+    title: DB 名
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: series_code
+    title: 系列コード
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: frequency
+    title: 期種
+    description: series の frequency と同じ
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: period
+    title: 期
+  - name: year
+    title: 年
+    description: period の先頭 4 桁。年度の系列では年度
+  - name: value
+    title: 値
+    description: 単位は series の unit
+    annotations: { queria: { semantic: { role: measure } } }

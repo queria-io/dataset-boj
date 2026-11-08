@@ -1,0 +1,63 @@
+# この dataset.yml は fdl commit が読む（FDL の dataset.json を YAML で書いたもの）。
+# 表の説明は models/ の *.table.yml に書く。表と列の型・NULL・行数は fdl commit がカタログから埋める。
+# Queria だけの項目（テーマ・カバー・列の意味）は annotations.queria に書く。
+name: boj
+title: 日本銀行 時系列統計
+description: |-
+  日本銀行の時系列統計データ検索サイトの全ての統計です。金利、マーケット、決済、預金・マネー・貸出、金融機関バランスシート、資金循環、短観、物価、財政、国際収支・BIS 関連の DB を、DB の一覧（databases）・系列の一覧（series）・値（observations）の 3 つのテーブルにしています。
+
+  このサービスは、日本銀行時系列統計データ検索サイトの API 機能を使用しています。サービスの内容は日本銀行によって保証されたものではありません。
+keywords:
+  - 日本銀行
+  - 日銀
+  - 短観
+  - 業況判断
+  - D.I.
+  - 設備投資計画
+  - 企業物価指数
+  - 輸出物価指数
+  - 輸入物価指数
+  - 企業向けサービス価格指数
+  - 物価
+  - 貸出先別貸出金
+  - 業種別貸出
+  - 銀行貸出
+  - 金利
+  - 為替
+  - マネーストック
+  - マネタリーベース
+  - 資金循環
+  - 国際収支
+homepage: https://github.com/queria-io/dataset-boj
+language: ja
+
+# 標準の利用許諾は無い。日本銀行ホームページの著作権のルールに従う
+licenses:
+  - id: boj-copyright
+    title: 日本銀行 著作権・免責事項
+    url: https://www.boj.or.jp/about/copyright.htm
+
+sources:
+  - title: 日本銀行 時系列統計データ検索サイト
+    path: https://www.stat-search.boj.or.jp/
+  - title: 日本銀行 時系列統計データ検索サイト API 機能利用時の留意点
+    path: https://www.stat-search.boj.or.jp/info/api_notice.pdf
+  - title: 日本銀行 著作権・免責事項
+    path: https://www.boj.or.jp/about/copyright.htm
+
+contributors:
+  - title: 日本銀行
+    path: https://www.boj.or.jp/
+    roles: [rightsHolder]
+
+spatial_coverage: [JP]
+update_frequency: irregular
+
+schemas:
+  - name: timeseries
+    title: 時系列統計
+
+annotations:
+  queria:
+    themes: [economy]
+    cover: 🏦

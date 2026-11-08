@@ -1,0 +1,9 @@
+# PR のビルド確認用。公開ストレージには書かず、手元の DuckDB ファイルに作る
+boj:
+  target: default
+  outputs:
+    default:
+      type: duckdb
+      path: target/boj.duckdb
+      schema: main
+      threads: 1

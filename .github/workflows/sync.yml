@@ -1,0 +1,22 @@
+name: Sync
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+  # 定期実行はせず、手で回す
+  workflow_dispatch:
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    uses: queria-io/dataset-shared/.github/workflows/sync.yml@main
+    with:
+      dataset_name: boj
+      # 全 DB の全系列を取り直す。間を空けて取るので時間がかかる
+      timeout_minutes: 180
+    secrets: inherit

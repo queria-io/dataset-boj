@@ -1,0 +1,17 @@
+name: "boj"
+version: "1.0.0"
+
+profile: "boj"
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros", "shared/macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  boj:
+    +database: boj
+    +materialized: table

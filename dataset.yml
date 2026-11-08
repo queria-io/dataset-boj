@@ -36,6 +36,9 @@ licenses:
   - id: boj-copyright
     title: 日本銀行 著作権・免責事項
     url: https://www.boj.or.jp/about/copyright.htm
+    commercial_use: false
+    share_alike: false
+    attribution_required: true
 
 sources:
   - title: 日本銀行 時系列統計データ検索サイト

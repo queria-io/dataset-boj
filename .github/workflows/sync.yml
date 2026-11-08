@@ -18,5 +18,5 @@ jobs:
     with:
       dataset_name: boj
       # 全 DB の全系列を取り直す。間を空けて取るので時間がかかる
-      timeout_minutes: 180
+      timeout_minutes: 240
     secrets: inherit

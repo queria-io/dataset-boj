@@ -1,5 +1,5 @@
-{# 系列の一覧。pipelines/boj.py が DB ごとに data/<db>/series.csv に書く。
-   検索サイトの表示順 (layer1〜layer5) に並べる #}
+{# 系列の一覧を型付けする。DB はファイルのフォルダ名から取る #}
+
 select
     upper(regexp_extract(filename, 'data/([^/]+)/series\.csv$', 1)) as db,
     series_code,
@@ -20,5 +20,4 @@ select
     strptime(last_update, '%Y%m%d')::date as last_update,
     nullif(notes, '') as notes,
     nullif(notes_en, '') as notes_en
-from read_csv('data/*/series.csv', header = true, all_varchar = true, filename = true)
-order by db, layer1, layer2, layer3, layer4, layer5, series_code
+from {{ ref('raw_series') }}

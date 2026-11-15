@@ -15,3 +15,9 @@ models:
   boj:
     +database: boj
     +materialized: table
+    # raw は取得したまま、stg は型付けと列名の付け替え。どちらも mart の SQL に展開し、テーブルは作らない
+    timeseries:
+      raw:
+        +materialized: ephemeral
+      stg:
+        +materialized: ephemeral

@@ -1,5 +1,6 @@
-schema: timeseries
-name: series
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: timeseries.series
 title: 系列の一覧
 description: |-
   日本銀行 時系列統計データ検索サイトの全 DB の系列の一覧です。1 行が 1 系列です。値は observations に、db と series_code で結合して読みます。
@@ -15,7 +16,7 @@ fields:
   - name: db
     title: DB 名
     description: databases の db と同じ
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: series_code
     title: 系列コード
     description: 日本銀行の系列コード。検索サイトのデータコードから先頭の「DB 名'」を除いたもの
@@ -30,7 +31,7 @@ fields:
   - name: frequency
     title: 期種
     description: DAILY（日次）・WEEKLY(…)（週次）・MONTHLY（月次）・QUARTERLY（四半期）・SEMIANNUAL（暦年半期）・SEMIANNUAL(SEP)（年度半期）・ANNUAL（暦年）・ANNUAL(MAR)（年度）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: category
     title: 分類
     description: 検索サイトでの分類。基準年や指数の種類が入ります
@@ -59,3 +60,4 @@ fields:
     description: 品目数やウエイトなど
   - name: notes_en
     title: 備考（英語）
+---

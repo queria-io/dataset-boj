@@ -28,6 +28,8 @@ keywords:
   - 国際収支
 homepage: https://github.com/queria-io/dataset-boj
 language: ja
+
+# 標準の利用許諾は無い。日本銀行ホームページの著作権のルールに従う
 licenses:
   - id: boj-copyright
     title: 日本銀行 著作権・免責事項

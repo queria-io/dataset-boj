@@ -1,6 +1,4 @@
-# この dataset.yml は fdl commit が読む（FDL の dataset.json を YAML で書いたもの）。
-# 表の説明は models/ の *.table.yml に書く。表と列の型・NULL・行数は fdl commit がカタログから埋める。
-# Queria だけの項目（テーマ・カバー・列の意味）は annotations.queria に書く。
+$schema: https://queria.io/schemas/dataset/v1.json
 name: boj
 title: 日本銀行 時系列統計
 description: |-
@@ -30,8 +28,6 @@ keywords:
   - 国際収支
 homepage: https://github.com/queria-io/dataset-boj
 language: ja
-
-# 標準の利用許諾は無い。日本銀行ホームページの著作権のルールに従う
 licenses:
   - id: boj-copyright
     title: 日本銀行 著作権・免責事項
@@ -55,12 +51,9 @@ contributors:
 
 spatial_coverage: [JP]
 update_frequency: irregular
-
 schemas:
   - name: timeseries
     title: 時系列統計
 
-annotations:
-  queria:
-    themes: [economy]
-    cover: 🏦
+themes: [economy]
+cover: 🏦

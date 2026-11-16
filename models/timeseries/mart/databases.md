@@ -1,5 +1,6 @@
-schema: timeseries
-name: databases
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: timeseries.databases
 title: DB の一覧
 description: |-
   日本銀行 時系列統計データ検索サイトの DB（統計のまとまり）の一覧です。1 行が 1 DB です。series と observations の db 列と結合します。
@@ -10,13 +11,14 @@ fields:
   - name: db
     title: DB 名
     description: CO（短観）、PR01（企業物価指数）、FF（資金循環）など
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: name
     title: DB 名称
   - name: field
     title: 統計分野
     description: 金利（預金・貸出関連）、マーケット関連、物価、短観など
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: series_count
     title: 系列の数
-    annotations: { queria: { semantic: { role: measure, agg: sum } } }
+    semantic: {role: measure, agg: sum}
+---

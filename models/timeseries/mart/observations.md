@@ -1,5 +1,6 @@
-schema: timeseries
-name: observations
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: timeseries.observations
 title: 値
 description: |-
   日本銀行 時系列統計データ検索サイトの全 DB の値です。1 行が 1 系列の 1 期です。系列名称や単位は series に、db と series_code で結合して引きます。
@@ -13,14 +14,14 @@ sources:
 fields:
   - name: db
     title: DB 名
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: series_code
     title: 系列コード
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: frequency
     title: 期種
     description: series の frequency と同じ
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: period
     title: 期
   - name: year
@@ -29,4 +30,5 @@ fields:
   - name: value
     title: 値
     description: 単位は series の unit
-    annotations: { queria: { semantic: { role: measure } } }
+    semantic: {role: measure}
+---

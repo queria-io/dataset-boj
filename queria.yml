@@ -52,7 +52,7 @@ contributors:
     roles: [rightsHolder]
 
 spatial_coverage: [JP]
-update_frequency: irregular
+update_frequency: daily
 schemas:
   - name: timeseries
     title: 時系列統計

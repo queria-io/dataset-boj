@@ -1,6 +1,6 @@
 """日本銀行 時系列統計データ検索サイトのデータパイプライン。
 
-1. boj: 検索サイトの全 DB の系列と値を API で取得する
+1. boj: 検索サイトの全 DB の系列を API で取得し、値は最終更新日が変わった系列だけ取得する
 2. dbt: dbt ビルド
 """
 
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from dbt.cli.main import dbtRunner
 
-from pipelines.boj import DATABASES, download, write_databases
+from pipelines import boj
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("pipelines")
@@ -24,10 +24,16 @@ def dbt_build():
 
 
 def fetch():
-    write_databases(Path("data/databases.csv"))
-    for db, name, _ in DATABASES:
-        logger.info(f"boj: {db} {name}")
-        download(db, Path("data") / db.lower())
+    boj.write_databases(Path("data/databases.csv"))
+    con = boj.previous_versions()
+    try:
+        for db, name, _ in boj.DATABASES:
+            logger.info(f"boj: {db} {name}")
+            boj.download(db, Path("data") / db.lower(), con)
+    finally:
+        if con:
+            con.close()
+    logger.info(f"boj: {boj.requests} requests")
 
 
 def main():

@@ -155,6 +155,15 @@ def fetch_values(db: str, codes: list[str]):
         position = data.get("NEXTPOSITION")
 
 
+def authorize(con) -> None:
+    """公開中のデータファイルを読むトークンを DuckDB に渡す。非公開のデータセットはトークンが
+    無いと 404 になる。トークンは 1 時間で切れるので、読む前に毎回渡し直す (shared/scripts/fdl_read.py)。"""
+    from shared.scripts import fdl_read
+
+    for statement in fdl_read.statements():
+        con.execute(statement)
+
+
 def previous_versions():
     """公開中のバージョンを開く。FDL_WORKING が無い (PR のビルド確認) か、表がまだ無ければ None。"""
     working = os.environ.get("FDL_WORKING")
@@ -164,6 +173,7 @@ def previous_versions():
 
     con = duckdb.connect(config={"custom_user_agent": os.environ.get("QUERIA_USER_AGENT", "")})
     con.execute("INSTALL ducklake; LOAD ducklake; INSTALL httpfs; LOAD httpfs;")
+    authorize(con)
     con.execute(f"ATTACH 'ducklake:{working.replace(chr(39), chr(39) * 2)}' AS previous (READ_ONLY, META_TYPE 'sqlite')")
     try:
         con.sql("select 1 from previous.timeseries.series, previous.timeseries.observations limit 1")
@@ -178,7 +188,7 @@ def to_fetch(series: list[dict], previous: dict[str, str]) -> list[dict]:
     """値を取り直す系列。新しい系列と最終更新日が変わった系列に加えて、前回見た最も新しい
     最終更新日と同じ日以降の系列も取り直す。最終更新日は日付までなので、前回の取得のあとに
     同じ日のうちに更新された系列を見落とさないため。"""
-    latest = max(previous.values(), default="")
+    latest = max((d for d in previous.values() if d), default="")
     return [
         s
         for s in series
@@ -196,6 +206,7 @@ def download(db: str, out_dir: Path, con) -> None:
 
     previous = {}
     if con:
+        authorize(con)
         previous = dict(
             con.execute(
                 "select series_code, strftime(last_update, '%Y%m%d') from previous.timeseries.series where db = ?",
@@ -213,7 +224,7 @@ def download(db: str, out_dir: Path, con) -> None:
     with gzip.open(out_dir / "observations.csv.gz", "wt", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["series_code", "period", "value"])
-        for frequency, codes in by_frequency.items():
+        for codes in by_frequency.values():
             for i in range(0, len(codes), BATCH):
                 for row in fetch_values(db, codes[i : i + BATCH]):
                     writer.writerow(row)
@@ -225,6 +236,7 @@ def download(db: str, out_dir: Path, con) -> None:
     fetched = {s["series_code"] for s in fetch}
     keep = [s["series_code"] for s in series if s["series_code"] not in fetched]
     if con and keep:
+        authorize(con)
         con.execute(
             f"""copy (
                 select series_code, period, value

@@ -5,7 +5,7 @@ description: |-
 primary_key: [db]
 sources:
   - id: api_manual
-    path: https://www.stat-search.boj.or.jp/info/api_manual.pdf
+    url: https://www.stat-search.boj.or.jp/info/api_manual.pdf
 columns:
   - name: db
     title: DB 名

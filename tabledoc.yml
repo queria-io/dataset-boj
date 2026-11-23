@@ -42,18 +42,18 @@ licenses:
 sources:
   - id: stat-search
     title: 日本銀行 時系列統計データ検索サイト
-    path: https://www.stat-search.boj.or.jp/
+    url: https://www.stat-search.boj.or.jp/
   - id: api_notice
     title: 日本銀行 時系列統計データ検索サイト API 機能利用時の留意点
-    path: https://www.stat-search.boj.or.jp/info/api_notice.pdf
+    url: https://www.stat-search.boj.or.jp/info/api_notice.pdf
   - id: copyright
     title: 日本銀行 著作権・免責事項
-    path: https://www.boj.or.jp/about/copyright.htm
+    url: https://www.boj.or.jp/about/copyright.htm
 
 contributors:
   - id: boj
     title: 日本銀行
-    path: https://www.boj.or.jp/
+    url: https://www.boj.or.jp/
     roles: [rightsHolder]
 
 spatial_coverage: [JP]

@@ -1,11 +1,12 @@
-$schema: https://queria.io/schemas/dataset/v1.json
+$schema: https://tabledoc.queria.io/schemas/dataset/v1.json
 name: boj
 title: 日本銀行 時系列統計
 description: |-
   日本銀行の時系列統計データ検索サイトの全ての統計です。金利、マーケット、決済、預金・マネー・貸出、金融機関バランスシート、資金循環、短観、物価、財政、国際収支・BIS 関連の DB を、DB の一覧（databases）・系列の一覧（series）・値（observations）の 3 つのテーブルにしています。
 
   このサービスは、日本銀行時系列統計データ検索サイトの API 機能を使用しています。サービスの内容は日本銀行によって保証されたものではありません。
-keywords:
+image: cover.png
+topics:
   - 日本銀行
   - 日銀
   - 短観
@@ -26,7 +27,6 @@ keywords:
   - マネタリーベース
   - 資金循環
   - 国際収支
-homepage: https://github.com/queria-io/dataset-boj
 language: ja
 
 # 標準の利用許諾は無い。日本銀行ホームページの著作権のルールに従う
@@ -39,16 +39,20 @@ licenses:
     attribution_required: true
 
 sources:
-  - title: 日本銀行 時系列統計データ検索サイト
-    path: https://www.stat-search.boj.or.jp/
-  - title: 日本銀行 時系列統計データ検索サイト API 機能利用時の留意点
-    path: https://www.stat-search.boj.or.jp/info/api_notice.pdf
-  - title: 日本銀行 著作権・免責事項
-    path: https://www.boj.or.jp/about/copyright.htm
+  - id: stat-search
+    title: 日本銀行 時系列統計データ検索サイト
+    url: https://www.stat-search.boj.or.jp/
+  - id: api_notice
+    title: 日本銀行 時系列統計データ検索サイト API 機能利用時の留意点
+    url: https://www.stat-search.boj.or.jp/info/api_notice.pdf
+  - id: copyright
+    title: 日本銀行 著作権・免責事項
+    url: https://www.boj.or.jp/about/copyright.htm
 
 contributors:
-  - title: 日本銀行
-    path: https://www.boj.or.jp/
+  - id: boj
+    title: 日本銀行
+    url: https://www.boj.or.jp/
     roles: [rightsHolder]
 
 spatial_coverage: [JP]
@@ -56,6 +60,3 @@ update_frequency: daily
 schemas:
   - name: timeseries
     title: 時系列統計
-
-themes: [economy]
-cover: 🏦

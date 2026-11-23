@@ -5,12 +5,19 @@ API の仕様: https://www.stat-search.boj.or.jp/info/api_manual.pdf
 - コード API に同じ期種の系列コードを 250 件ずつ渡して値を取る。1 回に返る値は
   60,000 件までで、超えた分は NEXTPOSITION から続きを取る
 - 高頻度のアクセスは接続を切られることがあるので、リクエストの間を空ける
+
+毎回全系列の値を取り直すと 1,800 リクエスト前後になり、検索サイトに負荷をかける。
+そこで値は差分だけを取る。メタデータ (DB ごとに 1 リクエスト) は毎回取り、公開中の
+バージョン (FDL_WORKING) の系列の最終更新日と比べて、変わった系列の値だけを取り直す。
+変わっていない系列の値は公開中のバージョンから写す。公開中のバージョンに表が無いときは
+全系列を取る。
 """
 
 import csv
 import gzip
 import json
 import logging
+import os
 import time
 import urllib.parse
 import urllib.request
@@ -90,13 +97,18 @@ SERIES_KEYS = [
 ]
 
 
+requests = 0
+
+
 def get(api: str, **params) -> dict:
     url = f"{BASE}/{api}?" + urllib.parse.urlencode({"format": "json", "lang": "jp", **params})
     request = urllib.request.Request(
         url, headers={"Accept-Encoding": "gzip", "User-Agent": "queria-dataset-boj"}
     )
+    global requests
     for attempt in range(5):
         time.sleep(INTERVAL_SEC * (2**attempt))
+        requests += 1
         try:
             with urllib.request.urlopen(request, timeout=120) as response:
                 body = response.read()
@@ -143,30 +155,100 @@ def fetch_values(db: str, codes: list[str]):
         position = data.get("NEXTPOSITION")
 
 
-def download(db: str, out_dir: Path) -> None:
+def authorize(con) -> None:
+    """公開中のデータファイルを読むトークンを DuckDB に渡す。非公開のデータセットはトークンが
+    無いと 404 になる。トークンは 1 時間で切れるので、読む前に毎回渡し直す (shared/scripts/fdl_read.py)。"""
+    from shared.scripts import fdl_read
+
+    for statement in fdl_read.statements():
+        con.execute(statement)
+
+
+def previous_versions():
+    """公開中のバージョンを開く。FDL_WORKING が無い (PR のビルド確認) か、表がまだ無ければ None。"""
+    working = os.environ.get("FDL_WORKING")
+    if not working:
+        return None
+    import duckdb
+
+    con = duckdb.connect(config={"custom_user_agent": os.environ.get("QUERIA_USER_AGENT", "")})
+    con.execute("INSTALL ducklake; LOAD ducklake; INSTALL httpfs; LOAD httpfs;")
+    authorize(con)
+    con.execute(f"ATTACH 'ducklake:{working.replace(chr(39), chr(39) * 2)}' AS previous (READ_ONLY, META_TYPE 'sqlite')")
+    try:
+        con.sql("select 1 from previous.timeseries.series, previous.timeseries.observations limit 1")
+    except duckdb.CatalogException as error:
+        logger.info(f"  公開中の表が無いので全系列を取る: {error}")
+        con.close()
+        return None
+    return con
+
+
+def to_fetch(series: list[dict], previous: dict[str, str]) -> list[dict]:
+    """値を取り直す系列。新しい系列と最終更新日が変わった系列に加えて、前回見た最も新しい
+    最終更新日と同じ日以降の系列も取り直す。最終更新日は日付までなので、前回の取得のあとに
+    同じ日のうちに更新された系列を見落とさないため。"""
+    latest = max((d for d in previous.values() if d), default="")
+    return [
+        s
+        for s in series
+        if previous.get(s["series_code"]) != s["last_update"] or (s["last_update"] or "") >= latest
+    ]
+
+
+def download(db: str, out_dir: Path, con) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     series = fetch_series(db)
     with open(out_dir / "series.csv", "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=SERIES_FIELDS)
         writer.writeheader()
         writer.writerows(series)
-    logger.info(f"  {db}: {len(series)} series")
+
+    previous = {}
+    if con:
+        authorize(con)
+        previous = dict(
+            con.execute(
+                "select series_code, strftime(last_update, '%Y%m%d') from previous.timeseries.series where db = ?",
+                [db],
+            ).fetchall()
+        )
+    fetch = to_fetch(series, previous) if con else series
+    logger.info(f"  {db}: {len(series)} series, {len(fetch)} to fetch")
 
     by_frequency: dict[str, list[str]] = {}
-    for s in series:
+    for s in fetch:
         by_frequency.setdefault(s["frequency"], []).append(s["series_code"])
 
     count = 0
     with gzip.open(out_dir / "observations.csv.gz", "wt", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["series_code", "period", "value"])
-        for frequency, codes in by_frequency.items():
+        for codes in by_frequency.values():
             for i in range(0, len(codes), BATCH):
                 for row in fetch_values(db, codes[i : i + BATCH]):
                     writer.writerow(row)
                     count += 1
-            logger.info(f"  {db} {frequency}: {len(codes)} series, {count} values so far")
-    logger.info(f"  {db}: {count} values")
+    logger.info(f"  {db}: {count} values fetched")
+
+    # 取り直さなかった系列の値は公開中のバージョンから写す。写す系列が無くても見出しだけのファイルを書く
+    kept = out_dir / "observations_previous.csv.gz"
+    fetched = {s["series_code"] for s in fetch}
+    keep = [s["series_code"] for s in series if s["series_code"] not in fetched]
+    if con and keep:
+        authorize(con)
+        con.execute(
+            f"""copy (
+                select series_code, period, value
+                from previous.timeseries.observations
+                where db = $db and series_code in (select unnest($codes))
+            ) to '{str(kept).replace(chr(39), chr(39) * 2)}' (header, compression gzip)""",
+            {"db": db, "codes": keep},
+        )
+        logger.info(f"  {db}: {len(keep)} series kept from the published version")
+    else:
+        with gzip.open(kept, "wt", newline="") as f:
+            csv.writer(f).writerow(["series_code", "period", "value"])
 
 
 def write_databases(out: Path) -> None:

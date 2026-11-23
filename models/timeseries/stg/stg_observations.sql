@@ -3,7 +3,7 @@
    月次・週次・日次は API が返す形のまま (月次は YYYYMM) #}
 
 select
-    upper(regexp_extract(filename, 'data/([^/]+)/observations\.csv\.gz$', 1)) as db,
+    upper(regexp_extract(filename, 'data/([^/]+)/observations[^/]*\.csv\.gz$', 1)) as db,
     series_code,
     period,
     cast(left(period, 4) as integer) as year,

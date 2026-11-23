@@ -60,4 +60,3 @@ update_frequency: irregular
 schemas:
   - name: timeseries
     title: 時系列統計
-

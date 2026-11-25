@@ -14,7 +14,6 @@ columns:
     dimension: categorical
   - name: series_code
     title: 系列コード
-    dimension: categorical
   - name: frequency
     title: 期種
     description: series の frequency と同じ

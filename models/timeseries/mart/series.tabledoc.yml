@@ -32,6 +32,7 @@ columns:
   - name: category
     title: 分類
     description: 検索サイトでの分類。基準年や指数の種類が入ります
+    dimension: categorical
   - name: category_en
     title: 分類（英語）
   - name: layer1

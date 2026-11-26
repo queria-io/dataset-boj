@@ -3,9 +3,10 @@ name: Apply
 on:
   push:
     branches: [main]
-  # 毎日 3 時 (JST)。値は最終更新日が変わった系列だけを取る (pipelines/boj.py)
+  # 毎日 2 時 37 分 (JST)。値は最終更新日が変わった系列だけを取る (pipelines/boj.py)。
+  # GitHub の定期実行は混む毎時 0 分に遅れやすいので、半端な分にする
   schedule:
-    - cron: "0 18 * * *"
+    - cron: "37 17 * * *"
   workflow_dispatch:
 
 concurrency:

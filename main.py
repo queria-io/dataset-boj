@@ -27,9 +27,10 @@ def fetch():
     boj.write_databases(Path("data/databases.csv"))
     con = boj.previous_versions()
     try:
+        latest = boj.previous_latest(con) if con else ""
         for db, name, _ in boj.DATABASES:
             logger.info(f"boj: {db} {name}")
-            boj.download(db, Path("data") / db.lower(), con)
+            boj.download(db, Path("data") / db.lower(), con, latest)
     finally:
         if con:
             con.close()

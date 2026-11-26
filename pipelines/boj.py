@@ -184,11 +184,11 @@ def previous_versions():
     return con
 
 
-def to_fetch(series: list[dict], previous: dict[str, str]) -> list[dict]:
-    """値を取り直す系列。新しい系列と最終更新日が変わった系列に加えて、前回見た最も新しい
-    最終更新日と同じ日以降の系列も取り直す。最終更新日は日付までなので、前回の取得のあとに
-    同じ日のうちに更新された系列を見落とさないため。"""
-    latest = max((d for d in previous.values() if d), default="")
+def to_fetch(series: list[dict], previous: dict[str, str], latest: str) -> list[dict]:
+    """値を取り直す系列。新しい系列と最終更新日が変わった系列に加えて、最終更新日が latest
+    (前回のバージョンの全 DB で最も新しい最終更新日) 以降の系列も取り直す。最終更新日は日付
+    までなので、前回の取得のあとに同じ日のうちにもう一度更新された系列を見落とさないため。
+    DB ごとの最新日にすると、四半期の DB では次の公表まで最新の公表分を毎日取り直してしまう"""
     return [
         s
         for s in series
@@ -196,7 +196,13 @@ def to_fetch(series: list[dict], previous: dict[str, str]) -> list[dict]:
     ]
 
 
-def download(db: str, out_dir: Path, con) -> None:
+def previous_latest(con) -> str:
+    """前回のバージョンの全 DB で最も新しい最終更新日 (YYYYMMDD)。"""
+    authorize(con)
+    return con.execute("select strftime(max(last_update), '%Y%m%d') from previous.timeseries.series").fetchone()[0] or ""
+
+
+def download(db: str, out_dir: Path, con, latest: str = "") -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     series = fetch_series(db)
     with open(out_dir / "series.csv", "w", newline="") as f:
@@ -213,7 +219,7 @@ def download(db: str, out_dir: Path, con) -> None:
                 [db],
             ).fetchall()
         )
-    fetch = to_fetch(series, previous) if con else series
+    fetch = to_fetch(series, previous, latest) if con else series
     logger.info(f"  {db}: {len(series)} series, {len(fetch)} to fetch")
 
     by_frequency: dict[str, list[str]] = {}
